@@ -26,10 +26,13 @@
             width: 90%;
         }
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
             margin-bottom: 1rem;
-            color: #FFD54F;
+            text-align: center;
+        }
+        .logo img {
+            height: 60px;
+            width: auto;
+            max-width: 200px;
         }
         .message {
             margin-bottom: 1.5rem;
@@ -68,7 +71,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">Seiby</div>
+        <div class="logo">
+            <img src="https://seiby.netlify.app/seiby-logo.png" alt="Seiby" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; font-size: 2rem; font-weight: bold; color: #FFD54F;">Seiby</div>
+        </div>
         <div class="spinner"></div>
         <div class="message" id="message">Redirigiendo a la aplicación...</div>
         <div class="error" id="error" style="display: none;"></div>
