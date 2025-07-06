@@ -83,8 +83,9 @@
         <!-- Manual test links for debugging -->
         <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
             <p style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #6b7280;">Debug Links:</p>
-            <button onclick="window.location.href='seiby://auth/callback'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; font-size: 0.875rem;">Test Auth Callback</button>
-            <button onclick="window.location.href='seiby://auth/reset-password'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.875rem;">Test Reset Password</button>
+            <button onclick="window.location.href='seiby://auth/callback'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; font-size: 0.875rem;">Test Seiby Scheme</button>
+            <button onclick="window.location.href='exp://192.168.1.1:8081/--/auth/callback'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; font-size: 0.875rem;">Test Expo Go</button>
+            <button onclick="window.location.href='seiby://auth/reset-password'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.875rem;">Test Reset</button>
         </div>
     </div>
 
@@ -133,6 +134,9 @@
             action = 'callback';
             messageEl.textContent = 'Procesando autenticación...';
         }
+        
+        // Also try Expo Go format as fallback
+        const expoGoLink = `exp://192.168.1.1:8081/--/auth/${action}`;
         
         // Add all parameters to the deep link
         const deepLinkParams = new URLSearchParams();
