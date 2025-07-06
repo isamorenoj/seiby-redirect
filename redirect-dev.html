@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seiby - Redirigiendo (Dev)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #1F2937;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .logo {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .logo img {
+            height: 60px;
+            width: auto;
+            max-width: 200px;
+        }
+        .message {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FFD54F;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #dc2626;
+            background: #fef2f2;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .manual-link {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .debug-info {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .debug-buttons {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+        }
+        .debug-button {
+            background: #FFD54F;
+            color: #1F2937;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .debug-button:hover {
+            background: #FFB300;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://seiby.netlify.app/seiby-logo.png" alt="Seiby" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div style="display: none; font-size: 2rem; font-weight: bold; color: #FFD54F;">Seiby (Dev)</div>
+        </div>
+        <div class="spinner"></div>
+        <div class="message" id="message">Redirigiendo a la aplicación...</div>
+        <div class="error" id="error" style="display: none;"></div>
+        <div class="manual-link" id="manualLink" style="display: none;"></div>
+        <div class="debug-info" id="debugInfo" style="display: none;"></div>
+        
+        <!-- Debug section for development -->
+        <div class="debug-buttons">
+            <p style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #6b7280;">Debug Tools:</p>
+            <button onclick="toggleDebug()" class="debug-button">Toggle Debug Info</button>
+            <button onclick="testDeepLink('seiby://auth/callback?access_token=test&refresh_token=test')" class="debug-button">Test Auth Callback</button>
+            <button onclick="testDeepLink('seiby://auth/reset-password?type=recovery')" class="debug-button">Test Reset Password</button>
+            <button onclick="testExpoGo()" class="debug-button">Test Expo Go</button>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        // Combine both query params and hash params
+        const allParams = {};
+        urlParams.forEach((value, key) => allParams[key] = value);
+        hashParams.forEach((value, key) => allParams[key] = value);
+        
+        console.log('🔐 Redirect page loaded with params:', allParams);
+        
+        const messageEl = document.getElementById('message');
+        const errorEl = document.getElementById('error');
+        const manualLinkEl = document.getElementById('manualLink');
+        const debugEl = document.getElementById('debugInfo');
+        
+        // Show debug info if requested
+        function toggleDebug() {
+            const isVisible = debugEl.style.display !== 'none';
+            debugEl.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                debugEl.innerHTML = `
+                    <strong>Debug Info:</strong><br>
+                    URL: ${window.location.href}<br>
+                    Params: ${JSON.stringify(allParams, null, 2)}<br>
+                    User Agent: ${navigator.userAgent}<br>
+                    Platform: ${navigator.platform}<br>
+                    Generated Deep Link: ${generateDeepLink()}
+                `;
+            }
+        }
+        
+        // Test deep link function
+        function testDeepLink(link) {
+            console.log('🔐 Testing deep link:', link);
+            window.location.href = link;
+        }
+        
+        // Test Expo Go function
+        function testExpoGo() {
+            const expoLink = 'exp://192.168.1.1:8081/--/auth/callback';
+            console.log('🔐 Testing Expo Go link:', expoLink);
+            window.location.href = expoLink;
+        }
+        
+        // Generate deep link
+        function generateDeepLink() {
+            let deepLink = 'seiby://';
+            
+            if (allParams.type === 'recovery' || allParams.type === 'reset') {
+                deepLink = 'seiby://auth/reset-password';
+            } else if (allParams.type === 'signup' || allParams.access_token) {
+                deepLink = 'seiby://auth/callback';
+            } else {
+                deepLink = 'seiby://auth/callback';
+            }
+            
+            const deepLinkParams = new URLSearchParams();
+            Object.keys(allParams).forEach(key => {
+                if (allParams[key]) {
+                    deepLinkParams.append(key, allParams[key]);
+                }
+            });
+            
+            if (deepLinkParams.toString()) {
+                deepLink += '?' + deepLinkParams.toString();
+            }
+            
+            return deepLink;
+        }
+        
+        // Check for errors first
+        if (allParams.error) {
+            messageEl.textContent = 'Error en la autenticación';
+            errorEl.textContent = allParams.error_description || allParams.error;
+            errorEl.style.display = 'block';
+            return;
+        }
+        
+        // Generate the deep link
+        const deepLink = generateDeepLink();
+        
+        // Determine the action for message
+        if (allParams.type === 'recovery' || allParams.type === 'reset') {
+            messageEl.textContent = 'Redirigiendo a restablecer contraseña...';
+        } else if (allParams.type === 'signup' || allParams.access_token) {
+            messageEl.textContent = 'Confirmando autenticación...';
+        } else {
+            messageEl.textContent = 'Procesando autenticación...';
+        }
+        
+        console.log('🔐 Redirecting to:', deepLink);
+        
+        // Try to redirect to the app
+        setTimeout(() => {
+            console.log('🔐 Executing redirect...');
+            window.location.href = deepLink;
+        }, 1000);
+        
+        // Fallback: if the app doesn't open, show instructions
+        setTimeout(() => {
+            if (document.visibilityState !== 'hidden') {
+                messageEl.innerHTML = `
+                    <strong>No se pudo abrir la aplicación automáticamente</strong><br><br>
+                    Por favor, abre la aplicación Seiby manualmente o copia este enlace:
+                `;
+                manualLinkEl.textContent = deepLink;
+                manualLinkEl.style.display = 'block';
+                
+                // Add a button to try again
+                const retryButton = document.createElement('button');
+                retryButton.textContent = 'Intentar de nuevo';
+                retryButton.style.cssText = `
+                    background: #FFD54F;
+                    color: #1F2937;
+                    border: none;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    margin-top: 1rem;
+                    cursor: pointer;
+                `;
+                retryButton.onclick = () => {
+                    window.location.href = deepLink;
+                };
+                manualLinkEl.appendChild(retryButton);
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 

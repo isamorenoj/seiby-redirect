@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Deep Links - Seiby</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #FFD54F 0%, #FFB300 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #1F2937;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-button {
+            background: #FFD54F;
+            color: #1F2937;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            margin: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+        .test-button:hover {
+            background: #FFB300;
+        }
+        .test-button.secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        .test-button.secondary:hover {
+            background: #e5e7eb;
+        }
+        .result {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Deep Link Testing</h1>
+        <p>Use these buttons to test deep linking functionality:</p>
+        
+        <h3>Test Seiby App Deep Links:</h3>
+        <button class="test-button" onclick="testDeepLink('seiby://auth/callback?access_token=test123&refresh_token=test456')">
+            🔐 Test Auth Callback
+        </button>
+        
+        <button class="test-button" onclick="testDeepLink('seiby://auth/reset-password?type=recovery&access_token=test123')">
+            🔑 Test Password Reset
+        </button>
+        
+        <button class="test-button" onclick="testDeepLink('seiby://auth/callback?type=signup&access_token=test123')">
+            ✉️ Test Email Confirmation
+        </button>
+        
+        <h3>Test Expo Go (Development):</h3>
+        <button class="test-button secondary" onclick="testDeepLink('exp://192.168.1.1:8081/--/auth/callback')">
+            📱 Test Expo Go Auth Callback
+        </button>
+        
+        <button class="test-button secondary" onclick="testDeepLink('exp://192.168.1.1:8081/--/auth/reset-password')">
+            📱 Test Expo Go Password Reset
+        </button>
+        
+        <h3>Test Production Redirect:</h3>
+        <button class="test-button secondary" onclick="testRedirect()">
+            🌐 Test Production Redirect Page
+        </button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function testDeepLink(link) {
+            const resultEl = document.getElementById('result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = `Testing deep link: ${link}\n\nAttempting to open...`;
+            
+            console.log('🔗 Testing deep link:', link);
+            
+            // Try to open the deep link
+            window.location.href = link;
+            
+            // Check if the page becomes hidden (app opened)
+            setTimeout(() => {
+                if (document.visibilityState === 'hidden') {
+                    resultEl.textContent += '\n✅ App appears to have opened!';
+                } else {
+                    resultEl.textContent += '\n❌ App did not open. Possible issues:\n- App not installed\n- Deep link scheme not registered\n- Development build needed';
+                }
+            }, 2000);
+        }
+        
+        function testRedirect() {
+            const resultEl = document.getElementById('result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = 'Testing production redirect page...\n\nRedirecting to: https://seiby.netlify.app/redirect.html';
+            
+            // Simulate a Supabase auth callback
+            const testUrl = 'https://seiby.netlify.app/redirect.html?access_token=test123&refresh_token=test456&type=signup';
+            window.open(testUrl, '_blank');
+        }
+        
+        // Show current URL info
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultEl = document.getElementById('result');
+            resultEl.style.display = 'block';
+            resultEl.textContent = `Current URL: ${window.location.href}\nUser Agent: ${navigator.userAgent}\nPlatform: ${navigator.platform}`;
+        });
+    </script>
+</body>
+</html> 
