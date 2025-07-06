@@ -79,6 +79,13 @@
         <div class="message" id="message">Redirigiendo a la aplicación...</div>
         <div class="error" id="error" style="display: none;"></div>
         <div class="manual-link" id="manualLink" style="display: none;"></div>
+        
+        <!-- Manual test links for debugging -->
+        <div style="margin-top: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+            <p style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #6b7280;">Debug Links:</p>
+            <button onclick="window.location.href='seiby://auth/callback'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; margin-right: 0.5rem; font-size: 0.875rem;">Test Auth Callback</button>
+            <button onclick="window.location.href='seiby://auth/reset-password'" style="background: #FFD54F; color: #1F2937; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.875rem;">Test Reset Password</button>
+        </div>
     </div>
 
     <script>
@@ -142,7 +149,9 @@
         console.log('🔐 Redirecting to:', deepLink);
         
         // Try to redirect to the app
+        console.log('🔐 Attempting to redirect to:', deepLink);
         setTimeout(() => {
+            console.log('🔐 Executing redirect...');
             window.location.href = deepLink;
         }, 1000);
         
