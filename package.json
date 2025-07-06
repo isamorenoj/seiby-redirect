@@ -1,0 +1,12 @@
+{
+  "name": "seiby-redirect",
+  "version": "1.0.0",
+  "description": "Seiby authentication redirect page",
+  "main": "redirect.html",
+  "scripts": {
+    "start": "echo 'This is a static site. Deploy to Netlify or similar service.'"
+  },
+  "keywords": ["seiby", "redirect", "authentication"],
+  "author": "Seiby Team",
+  "license": "MIT"
+} 
