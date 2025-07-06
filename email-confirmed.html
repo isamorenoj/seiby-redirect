@@ -161,6 +161,17 @@
             margin-top: 20px;
         }
         
+        .debug-info {
+            background: #F3F4F6;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: #6B7280;
+            text-align: left;
+        }
+        
         @media (max-width: 480px) {
             .container {
                 padding: 32px 24px;
@@ -191,99 +202,89 @@
         <div class="success-icon"></div>
         
         <h1>¡Email Confirmado!</h1>
-        <p>Tu email ha sido verificado exitosamente. Redirigiendo a la aplicación Seiby...</p>
+        <p>Tu email ha sido verificado exitosamente. Selecciona una opción para abrir la app:</p>
         
         <div class="loading">
             <div class="spinner"></div>
-            <p class="loading-text">Abriendo Seiby...</p>
+            <p class="loading-text">Preparando opciones...</p>
         </div>
         
         <div class="button-container">
-            <a href="#" class="button hidden" id="customSchemeButton">Abrir Seiby App</a>
-            <a href="#" class="button secondary hidden" id="expoGoButton">Abrir en Expo Go</a>
+            <a href="#" class="button" id="customSchemeButton">Abrir Seiby App</a>
+            <a href="#" class="button secondary" id="expoGoButton">Abrir en Expo Go</a>
+        </div>
+        
+        <div class="debug-info" id="debugInfo">
+            <strong>Debug Info:</strong><br>
+            Token: <span id="tokenDisplay">Loading...</span><br>
+            Local IP: <span id="ipDisplay">Loading...</span><br>
+            Expo URL: <span id="expoUrlDisplay">Loading...</span><br>
+            Custom URL: <span id="customUrlDisplay">Loading...</span>
         </div>
     </div>
 
     <script>
         // Get token from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
+        const token = urlParams.get('token') || 'no-token';
         
         const customSchemeButton = document.getElementById('customSchemeButton');
         const expoGoButton = document.getElementById('expoGoButton');
         const loadingText = document.querySelector('.loading-text');
         
-        let redirectAttempts = 0;
-        const maxAttempts = 3;
+        // Debug elements
+        const tokenDisplay = document.getElementById('tokenDisplay');
+        const ipDisplay = document.getElementById('ipDisplay');
+        const expoUrlDisplay = document.getElementById('expoUrlDisplay');
+        const customUrlDisplay = document.getElementById('customUrlDisplay');
+        
+        // Update debug info
+        tokenDisplay.textContent = token;
         
         // Get local IP address for Expo Go
         function getLocalIP() {
-            // Try to get from URL if available, otherwise use common local IPs
             const hostname = window.location.hostname;
             if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                // For localhost, use the actual local IP
-                return ['10.0.0.15', '192.168.1.100', '192.168.0.100'];
+                return '10.0.0.15';
             }
-            return [hostname];
+            return hostname;
         }
         
-        function attemptRedirect() {
-            redirectAttempts++;
-            const appUrl = `seiby://onboarding/email-confirmed?token=${token}`;
-            
-            console.log(`Attempt ${redirectAttempts}: Trying to redirect to ${appUrl}`);
-            
-            // Try different methods to open the app
-            if (redirectAttempts === 1) {
-                // First attempt: direct redirect
-                window.location.href = appUrl;
-            } else if (redirectAttempts === 2) {
-                // Second attempt: window.open
-                window.open(appUrl, '_self');
-            } else if (redirectAttempts === 3) {
-                // Third attempt: create and click a link
-                const link = document.createElement('a');
-                link.href = appUrl;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            
-            // Show fallback buttons after all attempts
-            if (redirectAttempts >= maxAttempts) {
-                setTimeout(() => {
-                    customSchemeButton.classList.remove('hidden');
-                    expoGoButton.classList.remove('hidden');
-                    loadingText.textContent = 'Selecciona una opción para abrir la app:';
-                    
-                    // Set up Expo Go button with local IP
-                    const localIPs = getLocalIP();
-                    const expoUrl = `exp://${localIPs[0]}:8081/--/onboarding/email-confirmed?token=${token}`;
-                    expoGoButton.href = expoUrl;
-                }, 2000);
-            }
-        }
+        const localIP = getLocalIP();
+        ipDisplay.textContent = localIP;
         
-        // Start redirect attempts
-        setTimeout(attemptRedirect, 1000);
-        setTimeout(attemptRedirect, 3000);
-        setTimeout(attemptRedirect, 5000);
+        // Create URLs
+        const customUrl = `seiby://onboarding/email-confirmed?token=${token}`;
+        const expoUrl = `exp://${localIP}:8081/--/onboarding/email-confirmed?token=${token}`;
         
-        // Custom scheme button click handler
+        customUrlDisplay.textContent = customUrl;
+        expoUrlDisplay.textContent = expoUrl;
+        
+        // Set button URLs
+        customSchemeButton.href = customUrl;
+        expoGoButton.href = expoUrl;
+        
+        // Update loading text
+        loadingText.textContent = '¡Listo! Selecciona una opción arriba.';
+        
+        // Button click handlers with logging
         customSchemeButton.addEventListener('click', function(e) {
             e.preventDefault();
-            const appUrl = `seiby://onboarding/email-confirmed?token=${token}`;
-            window.location.href = appUrl;
+            console.log('Attempting to open custom scheme:', customUrl);
+            window.location.href = customUrl;
         });
         
-        // Expo Go button click handler
         expoGoButton.addEventListener('click', function(e) {
             e.preventDefault();
-            const localIPs = getLocalIP();
-            const expoUrl = `exp://${localIPs[0]}:8081/--/onboarding/email-confirmed?token=${token}`;
+            console.log('Attempting to open Expo Go:', expoUrl);
             window.location.href = expoUrl;
         });
+        
+        // Auto-attempt Expo Go after 2 seconds
+        setTimeout(() => {
+            console.log('Auto-attempting Expo Go...');
+            window.location.href = expoUrl;
+        }, 2000);
     </script>
 </body>
 </html> 
